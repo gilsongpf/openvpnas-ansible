@@ -1,0 +1,47 @@
+---
+- name: Install OpenVPN Access Server
+  hosts: all
+  become: true
+  tasks:
+    - name: Run apt-get update
+      apt:
+        update_cache: yes
+
+    - name: Install ca-certificates
+      apt:
+        name: ca-certificates
+        state: present
+
+    - name: Install wget
+      apt:
+        name: wget
+        state: present
+
+    - name: Install net-tools
+      apt:
+        name: net-tools
+        state: present
+
+    - name: Install gnupg
+      apt:
+        name: gnupg
+        state: present
+
+    - name: Add apt key to OpenVPN Access Server repo
+      ansible.builtin.apt_key:
+        url: https://as-repository.openvpn.net/as-repo-public.gpg
+        state: present
+
+    - name: Add OpenVPN Access Server repo 
+      ansible.builtin.apt_repository:
+        repo: deb http://as-repository.openvpn.net/as/debian focal main
+        state: present
+        filename: openvpn-as-repo
+
+    - name: Install OpenVPN Access Server
+      apt:
+        name: openvpn-as
+        update_cache: yes
+
+    - name: Set default administration password
+      ansible.builtin.shell: /usr/local/openvpn_as/scripts/sacli --user "openvpn" --new_pass=ansibleopenvpn SetLocalPassword
